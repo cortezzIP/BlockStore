@@ -1,5 +1,5 @@
-const CStore = artifacts.require("CStore");
+const BlockStore = artifacts.require("BlockStore");
 
 module.exports = function (deployer) {
-  deployer.deploy(CStore);
+  deployer.deploy(BlockStore);
 };
