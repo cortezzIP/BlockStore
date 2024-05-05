@@ -1,10 +1,10 @@
 {
   "name": "block-store",
   "version": "1.0.0",
-  "description": "",
+  "description": "Online store using blockchain technologies!",
   "main": "app.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test-contract": "truffle test test/contract.test.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,14 @@
   "bugs": {
     "url": "https://github.com/cortezzIP/BlockStore/issues"
   },
-  "homepage": "https://github.com/cortezzIP/BlockStore#readme"
+  "homepage": "https://github.com/cortezzIP/BlockStore#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "web3": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.8",
+    "@types/web3": "^1.2.2"
+  }
 }
