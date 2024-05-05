@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: ISC
+pragma solidity >=0.4.22 <0.9.0;
 
 contract BlockStore {
     enum Role {
@@ -24,6 +24,7 @@ contract BlockStore {
 
     struct Store {
         address owner;
+        uint rating;
         string name;
         uint balance;
     }
@@ -61,7 +62,9 @@ contract BlockStore {
     uint public requestCount;
 
     constructor() {
-        
+        users[0x627306090abaB3A6e1400e9345bC60c78a8BEf57] = User(Role.Admin, 0x627306090abaB3A6e1400e9345bC60c78a8BEf57, 'adminpass', true);
+        users[0xf17f52151EbEF6C7334FAD080c5704D77216b732] = User(Role.Seller, 0xf17f52151EbEF6C7334FAD080c5704D77216b732, 'adminpass', true);
+        users[0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef] = User(Role.Buyer, 0xC5fdf4076b8F3A5357c5E395ab970B5B54098Fef, 'adminpass', true);
     }
 
     modifier onlyAdmin() {
@@ -89,8 +92,8 @@ contract BlockStore {
         users[_userAddress] = User(_role, _userAddress, _password, true);
     }
 
-    function createStore(string memory _name) public onlyAdmin {
-        stores[msg.sender] = Store(msg.sender, _name, 0);
+    function createStore(address _storeAddress, string memory _name) public onlyAdmin {
+        stores[_storeAddress] = Store(_storeAddress, 0, _name, 0);
     }
 
     function createAdmin(address _adminAddress, string memory _password) public onlyAdmin {
@@ -107,7 +110,7 @@ contract BlockStore {
 
     function createProduct(string memory _name, uint _price) public onlySeller {
         productCount++;
-        products[productCount] = Product(productCount, _name, _price, msg.sender, true);
+        products[productCount] = Product(productCount, _name, _price, msg.sender, false);
     }
 
     function buyProduct(uint _productId) public payable onlyBuyer {
@@ -117,18 +120,17 @@ contract BlockStore {
         require(msg.value >= product.price, "Not enough Ether provided");
 
         payable(product.seller).transfer(msg.value);
-        product.isAvailable = false;
+        products[_productId].isAvailable = false;
     }
 
     function returnProduct(uint _productId) public payable onlyBuyer {
         Product storage product = products[_productId];
-        require(product.isAvailable, "Product is not available for return");
+        require(!product.isAvailable, "Product is not available for return");
 
         payable(msg.sender).transfer(product.price);
 
-        product.isAvailable = true;
+        products[_productId].isAvailable = true;
     }
-
 
     function createRequestRoleChange(Role _desiredRole) public {
         require(users[msg.sender].role != _desiredRole, "You already have the desired role");
@@ -157,10 +159,11 @@ contract BlockStore {
         DeliveryRequest storage request = deliveryRequests[_requestId];
         Product storage product = products[request.productId];
         
+        require(!request.isDelivered, "Request is already confirmed");
         require(msg.sender == request.sender || msg.sender == request.receiver, "Only sender or receiver can confirm delivery");
-        require(product.isAvailable, "Product is not available for return");
+        require(!product.isAvailable, "Product is already available");
 
-        product.isAvailable = true;
-        request.isDelivered = true;
+        products[request.productId].isAvailable = true;
+        deliveryRequests[_requestId].isDelivered = true;
     }
 }
