@@ -1,5 +1,4 @@
 const BlockStore = artifacts.require("BlockStore");
-const truffleAssert = require("truffle-assertions");
 
 contract("BlockStore", (accounts) => {
   it("should create a user", async () => {
@@ -238,8 +237,14 @@ contract("BlockStore", (accounts) => {
       from: deliveryRequest.sender,
     });
 
-    await blockStoreInstance.buyProduct(productId, { from: accounts[2], value: productPrice });
-    await blockStoreInstance.returnProduct(productId, { from: accounts[2], value: productPrice });
+    await blockStoreInstance.buyProduct(productId, {
+      from: accounts[2],
+      value: productPrice,
+    });
+    await blockStoreInstance.returnProduct(productId, {
+      from: accounts[2],
+      value: productPrice,
+    });
 
     const product = await blockStoreInstance.products(productId);
     assert.isTrue(
